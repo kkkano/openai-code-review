@@ -1,4 +1,4 @@
-package plus.gaga.middlewate.test;
+package plus.gaga.middlewatr.test;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
