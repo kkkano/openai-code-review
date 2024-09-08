@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: openai-code-review-test-app
+  profiles:
+    active: dev
