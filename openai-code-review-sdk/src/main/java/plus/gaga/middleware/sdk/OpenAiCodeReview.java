@@ -48,7 +48,7 @@ public class OpenAiCodeReview {
         connection.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
         connection.setDoOutput(true);
 
-//        String code = "1+1+1";
+//        String code = "1+1+11";
 //
 //        String jsonInpuString = "{"
 //                + "\"model\":\"glm-4-flash\","
