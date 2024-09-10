@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import org.junit.Test;
 import plus.gaga.middleware.sdk.domain.model.ChatCompletionSyncResponse;
 import plus.gaga.middleware.sdk.types.utils.BearerTokenUtils;
+import plus.gaga.middleware.sdk.types.utils.WXAccessTokenUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,6 +12,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
 public class ApiTest {
 
@@ -70,5 +74,84 @@ public class ApiTest {
         System.out.println(response.getChoices().get(0).getMessage().getContent());
 
     }
+    @Test
+    public void test_wx() {
+        String accessToken = WXAccessTokenUtils.getAccessToken();
+        Message message = new Message();
+        message.put("project","bit-market");
+        message.put("review","feat:新增功能");
 
-}
+        String url = String.format("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s", accessToken);
+        sendPostRequest(url, JSON.toJSONString(message));
+
+    }
+    private static void sendPostRequest(String urlString, String jsonBody) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = jsonBody.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            try (Scanner scanner = new Scanner(conn.getInputStream(), StandardCharsets.UTF_8.name())) {
+                String response = scanner.useDelimiter("\\A").next();
+                System.out.println(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static class Message {
+        public String getTouser() {
+            return touser;
+        }
+
+        public void setTouser(String touser) {
+            this.touser = touser;
+        }
+
+        public String getTemplate_id() {
+            return template_id;
+        }
+
+        public void setTemplate_id(String template_id) {
+            this.template_id = template_id;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public Map<String, Map<String, String>> getData() {
+            return data;
+        }
+
+        public void setData(Map<String, Map<String, String>> data) {
+            this.data = data;
+        }
+
+        private String touser="o2TPj6jmwm-qq5bZ-gHGm4nyBcdg";
+        private String template_id="ZWelo6A7nPwBosTa9aKOH0ES4dbPVJbwqW9uy5Cw6rs";
+        private String url="https://github.com/kkkano/openai-code-review-log/blob/main/2024-09-10/O6zO2uRwfQx4.md";
+
+        private  Map<String, Map<String, String>> data = new HashMap<>();
+        public void put(String key,String value){
+            data.put(key,new HashMap<String, String>(){{
+                put("value",value);
+            }});
+        }
+    }
+
+    }
+
