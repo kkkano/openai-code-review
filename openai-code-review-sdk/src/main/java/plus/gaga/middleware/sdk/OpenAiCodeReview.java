@@ -44,7 +44,8 @@ public class OpenAiCodeReview {
         String log = codeReview(diffCode.toString());
         System.out.println("code review " + log);
         //3.写入评审日志
-        writeLog(token,log);
+        String logUrl = writeLog(token, log);
+        System.out.println("评审信息"+logUrl);
     }
 
     private static String codeReview(String diffCode) throws Exception {
