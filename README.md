@@ -1,6 +1,7 @@
 基于 GitHub Actions + OpenAI(ChatGLM) + Git/GitHub + 公众号模板消息实现，然后串联出从代码提交获取通知，Git 检出分支变化，在使用 OpenAI 进行代码和写入日志，再发送消息通知,完成了一个AI代码评审的功能
 写入日志查看：https://github.com/kkkano/openai-code-review-log
-微信公众号效果演示：![fa74b31d4641565c52dfe52ca1b003cd](https://github.com/user-attachments/assets/790165dc-6c6e-4792-a141-256d89ef4486)
+微信公众号效果演示：![Uploading image.png…]()
+
 
 ![image](https://github.com/user-attachments/assets/f557e7bc-108b-42b8-893c-918eb1e27176)
 项目流程
