@@ -13,7 +13,9 @@ public class WXAccessTokenUtils {
     private static final String SECRET = "d7e2beb5c1105aa083d30e6a82eb9d99";
     private static final String GRANT_TYPE = "client_credential";
     private static final String URL_TEMPLATE = "https://api.weixin.qq.com/cgi-bin/token?grant_type=%s&appid=%s&secret=%s";
-
+    public static String getAccessToken(String APPID,String SECRET) {
+        return getAccessToken(APPID, SECRET);
+    }
     public static String getAccessToken() {
         try {
             String urlString = String.format(URL_TEMPLATE, GRANT_TYPE, APPID, SECRET);
