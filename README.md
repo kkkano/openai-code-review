@@ -2,6 +2,15 @@
 写入日志查看：https://github.com/kkkano/openai-code-review-log
 微信公众号效果演示：![EC6B76YAX9X2J_RZBMA34 D](https://github.com/user-attachments/assets/8f379984-c035-459e-913b-015f121c6ccd)
 
+## 新增：多提供商接入（OpenAI-compatible）
+
+现在支持通过 YAML 配置切换 LLM 提供商：
+
+- `openai-compatible`：支持 OpenAI 以及兼容 OpenAI Chat Completions 协议的第三方网关
+- `chatglm`：兼容原有配置
+
+配置文件：`.github/code-review.yml`
+详细说明：`docs/configuration.md`
 
 
 ![image](https://github.com/user-attachments/assets/f557e7bc-108b-42b8-893c-918eb1e27176)

@@ -1,0 +1,12 @@
+provider: openai-compatible
+apiHost: https://api.openai.com/v1/chat/completions
+apiKey: ${OPENAI_APIKEY}
+authScheme: Bearer
+model: gpt-4o-mini
+promptTemplate: |
+  你是资深代码审查工程师。请基于 git diff 输出结构化结果：
+  1) Summary
+  2) Risks（Critical/High/Medium/Low）
+  3) Actionable Fixes
+  4) Tests to Add
+  要求：具体、可执行、避免空话。
