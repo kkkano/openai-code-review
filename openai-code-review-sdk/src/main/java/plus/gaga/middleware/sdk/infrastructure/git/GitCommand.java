@@ -1,7 +1,6 @@
 package plus.gaga.middleware.sdk.infrastructure.git;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,6 @@ public class GitCommand {
     }
 
     public String diff() throws IOException, InterruptedException {
-        // openai.itedus.cn
         ProcessBuilder logProcessBuilder = new ProcessBuilder("git", "log", "-1", "--pretty=format:%H");
         logProcessBuilder.directory(new File("."));
         Process logProcess = logProcessBuilder.start();
@@ -74,27 +72,33 @@ public class GitCommand {
                 .setCredentialsProvider(new UsernamePasswordCredentialsProvider(githubToken, ""))
                 .call();
 
-        // 创建分支
         String dateFolderName = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         File dateFolder = new File("repo/" + dateFolderName);
         if (!dateFolder.exists()) {
             dateFolder.mkdirs();
         }
 
-        String fileName = project + "-" + branch + "-" + author + System.currentTimeMillis() + "-" + RandomStringUtils.randomNumeric(4) + ".md";
+        String fileName = safe(project) + "-" + safe(branch) + "-" + safe(author)
+                + System.currentTimeMillis() + "-" + RandomStringUtils.randomNumeric(4) + ".md";
         File newFile = new File(dateFolder, fileName);
         try (FileWriter writer = new FileWriter(newFile)) {
             writer.write(recommend);
         }
 
-        // 提交内容
         git.add().addFilepattern(dateFolderName + "/" + fileName).call();
-        git.commit().setMessage("add code review new file" + fileName).call();
+        git.commit().setMessage("add code review new file " + fileName).call();
         git.push().setCredentialsProvider(new UsernamePasswordCredentialsProvider(githubToken, "")).call();
 
         logger.info("openai-code-review git commit and push done! {}", fileName);
 
         return githubReviewLogUri + "/blob/main/" + dateFolderName + "/" + fileName;
+    }
+
+    private String safe(String raw) {
+        if (raw == null || raw.trim().isEmpty()) return "unknown";
+        String s = raw.replaceAll("[^a-zA-Z0-9._-]", "_");
+        if (s.length() > 80) return s.substring(0, 80);
+        return s;
     }
 
     public String getProject() {

@@ -1,7 +1,6 @@
 package plus.gaga.middleware.sdk.domain.service.impl;
 
 
-import plus.gaga.middleware.sdk.domain.model.Model;
 import plus.gaga.middleware.sdk.domain.service.AbstractOpenAiCodeReviewService;
 import plus.gaga.middleware.sdk.infrastructure.git.GitCommand;
 import plus.gaga.middleware.sdk.infrastructure.openai.IOpenAI;
@@ -17,8 +16,25 @@ import java.util.Map;
 
 public class OpenAiCodeReviewService extends AbstractOpenAiCodeReviewService {
 
+    private final String reviewModel;
+    private final String promptTemplate;
+
+    private static final String DEFAULT_PROMPT_TEMPLATE =
+            "你是资深代码审查工程师。请基于以下 git diff 输出结构化评审：\n" +
+                    "1) Summary（本次改动摘要）\n" +
+                    "2) Risks（按 Critical/High/Medium/Low 列出，含原因）\n" +
+                    "3) Actionable Fixes（可执行修复建议，尽量给出示例）\n" +
+                    "4) Tests（建议补充的测试点）\n" +
+                    "要求：聚焦真实问题，避免空泛表述。";
+
     public OpenAiCodeReviewService(GitCommand gitCommand, IOpenAI openAI, WeiXin weiXin) {
+        this(gitCommand, openAI, weiXin, "glm-4-flash", null);
+    }
+
+    public OpenAiCodeReviewService(GitCommand gitCommand, IOpenAI openAI, WeiXin weiXin, String reviewModel, String promptTemplate) {
         super(gitCommand, openAI, weiXin);
+        this.reviewModel = reviewModel;
+        this.promptTemplate = (promptTemplate == null || promptTemplate.trim().isEmpty()) ? DEFAULT_PROMPT_TEMPLATE : promptTemplate;
     }
 
     @Override
@@ -29,13 +45,13 @@ public class OpenAiCodeReviewService extends AbstractOpenAiCodeReviewService {
     @Override
     protected String codeReview(String diffCode) throws Exception {
         ChatCompletionRequestDTO chatCompletionRequest = new ChatCompletionRequestDTO();
-        chatCompletionRequest.setModel(Model.GLM_4_FLASH.getCode());
+        chatCompletionRequest.setModel(reviewModel);
         chatCompletionRequest.setMessages(new ArrayList<ChatCompletionRequestDTO.Prompt>() {
             private static final long serialVersionUID = -7988151926241837899L;
 
             {
-                add(new ChatCompletionRequestDTO.Prompt("user", "你是一个高级编程架构师，精通各类场景方案、架构设计和编程语言请，请您根据git diff记录，对代码做出评审。代码如下:"));
-                add(new ChatCompletionRequestDTO.Prompt("user", diffCode));
+                add(new ChatCompletionRequestDTO.Prompt("system", promptTemplate));
+                add(new ChatCompletionRequestDTO.Prompt("user", "请评审以下 git diff：\n\n" + diffCode));
             }
         });
 
