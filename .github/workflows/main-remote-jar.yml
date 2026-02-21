@@ -55,7 +55,7 @@ jobs:
           WEIXIN_TEMPLATE_ID: ${{ secrets.WEIXIN_TEMPLATE_ID }}
 
           REVIEW_CONFIG_FILE: .github/code-review.yml
-          REVIEW_PROVIDER: ${{ secrets.REVIEW_PROVIDER }}
+          REVIEW_PROVIDER: openai-compatible
           REVIEW_MODEL: ${{ secrets.REVIEW_MODEL }}
 
           OPENAI_APIHOST: ${{ secrets.OPENAI_APIHOST }}
