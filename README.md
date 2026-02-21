@@ -2,6 +2,19 @@
 写入日志查看：https://github.com/kkkano/openai-code-review-log
 微信公众号效果演示：![EC6B76YAX9X2J_RZBMA34 D](https://github.com/user-attachments/assets/8f379984-c035-459e-913b-015f121c6ccd)
 
+## 3 分钟开箱清单（Checklist）
+
+给新仓库接入时，按下面打钩即可：
+
+- [ ] 复制 `docs/examples/code-review-workflow-template.yml` 到目标仓库 `.github/workflows/code-review.yml`
+- [ ] 复制 `docs/examples/code-review.yml` 到目标仓库 `.github/code-review.yml`
+- [ ] 在目标仓库配置 Secrets：`CODE_REVIEW_LOG_URI`、`CODE_TOKEN`、`OPENAI_APIHOST`、`OPENAI_APIKEY`、`REVIEW_MODEL`、`WEIXIN_APPID`、`WEIXIN_SECRET`、`WEIXIN_TOUSER`、`WEIXIN_TEMPLATE_ID`
+- [ ] 确认 workflow 里的 `SDK_VERSION`（当前推荐：`v1.1.0`）
+- [ ] push 一次代码或提一个 PR，触发 Actions
+- [ ] 验收 3 件事：Action 成功 / 日志仓有新 markdown / 微信收到消息
+
+> 详细图文步骤见下方「开箱即用」章节与 `docs/bind-other-projects.md`。
+
 ## 新增：多提供商接入（OpenAI-compatible）
 
 现在支持通过 YAML 配置切换 LLM 提供商：
