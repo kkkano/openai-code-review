@@ -41,16 +41,62 @@ Git检出：GitHub Actions触发，检出最新的代码变更。
 - 开发调试阶段：优先“从当前分支构建 jar”（保证改动即时生效）
 - 稳定后：发布 Release，给多仓库复用同一稳定版本
 
-## 新增：可直接复用的 Workflow 模板
+## 开箱即用（给其他仓库直接接入，按步骤做就能跑）
 
-已提供示例文件：
-- `docs/examples/code-review-workflow-template.yml`（可复制到目标仓库 `.github/workflows/code-review.yml`）
-- `docs/examples/code-review.yml`（目标仓库的评审配置示例）
+下面是**最稳妥**的一套接入流程，适合第一次使用：
 
-使用方法：
-1. 复制 workflow 模板到目标仓库；
-2. 按文档配置 secrets（`CODE_*`、`OPENAI_*`、`WEIXIN_*`）；
-3. 在目标仓库添加 `.github/code-review.yml`；
-4. push 一次代码即可触发评审与微信通知。
+### 第 1 步：在目标仓库添加 2 个文件
+
+1) 工作流文件：
+- 路径：`.github/workflows/code-review.yml`
+- 直接复制：`docs/examples/code-review-workflow-template.yml`
+
+2) 评审配置文件：
+- 路径：`.github/code-review.yml`
+- 直接复制：`docs/examples/code-review.yml`
+
+### 第 2 步：在目标仓库配置 Secrets
+
+进入目标仓库：`Settings -> Secrets and variables -> Actions`，新增：
+
+- `CODE_REVIEW_LOG_URI`（评审日志仓库地址）
+- `CODE_TOKEN`（可写日志仓库的 GitHub Token）
+- `OPENAI_APIHOST`（如 DeepSeek 网关地址）
+- `OPENAI_APIKEY`（LLM API Key）
+- `REVIEW_MODEL`（如 `deepseek-chat`）
+- `WEIXIN_APPID`
+- `WEIXIN_SECRET`
+- `WEIXIN_TOUSER`
+- `WEIXIN_TEMPLATE_ID`
+
+### 第 3 步：确认模板里的 SDK 版本
+
+在 workflow 模板中有：
+
+- `SDK_VERSION: v1.1.0`
+
+建议先保持这个版本，稳定后再按 release 升级。
+
+### 第 4 步：推送一次代码触发
+
+- push 或发起 pull request
+- 到 `Actions` 页面查看 `AI Code Review` / `Build and Run OpenAiCodeReview` 运行状态
+
+### 第 5 步：验收是否成功
+
+成功标志：
+- Actions 运行成功；
+- 日志仓库出现新的 code review markdown；
+- 微信收到模板消息通知。
+
+---
+
+### 常见问题排查
+
+- **没收到微信**：先看日志里是否有 `weixin template message` 和 `errcode`。
+- **模型调用失败**：检查 `OPENAI_APIHOST / OPENAI_APIKEY / REVIEW_MODEL`。
+- **日志没写入**：检查 `CODE_TOKEN` 权限和 `CODE_REVIEW_LOG_URI`。
+- **首次接入建议先在测试仓验证**，通过后再推广到正式仓库。
+
 
 
