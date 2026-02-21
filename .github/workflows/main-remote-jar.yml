@@ -24,17 +24,14 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
 
-      - name: Create libs directory
-        run: mkdir -p ./libs
-
-      - name: Download openai-code-review-sdk JAR
-        run: wget -O ./libs/openai-code-review-sdk-1.0.jar https://github.com/kkkano/openai-code-review/releases/download/v1.0/openai-code-review-sdk-1.0.jar
+      - name: Build SDK Jar from current branch
+        run: mvn -q -DskipTests clean package
 
       - name: Get repository name
         run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
 
       - name: Get branch name
-        run: echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+        run: echo "BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
 
       - name: Get commit author
         run: echo "COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an <%ae>')" >> $GITHUB_ENV
@@ -43,9 +40,8 @@ jobs:
         run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
 
       - name: Run Code Review
-        run: java -jar ./libs/openai-code-review-sdk-1.0.jar
+        run: java -jar ./openai-code-review-sdk/target/openai-code-review-sdk-1.0.jar
         env:
-          # review log repo
           GITHUB_REVIEW_LOG_URI: ${{ secrets.CODE_REVIEW_LOG_URI }}
           GITHUB_TOKEN: ${{ secrets.CODE_TOKEN }}
           COMMIT_PROJECT: ${{ env.REPO_NAME }}
@@ -53,22 +49,18 @@ jobs:
           COMMIT_AUTHOR: ${{ env.COMMIT_AUTHOR }}
           COMMIT_MESSAGE: ${{ env.COMMIT_MESSAGE }}
 
-          # optional WeChat notify (can be empty)
           WEIXIN_APPID: ${{ secrets.WEIXIN_APPID }}
           WEIXIN_SECRET: ${{ secrets.WEIXIN_SECRET }}
           WEIXIN_TOUSER: ${{ secrets.WEIXIN_TOUSER }}
           WEIXIN_TEMPLATE_ID: ${{ secrets.WEIXIN_TEMPLATE_ID }}
 
-          # provider config
           REVIEW_CONFIG_FILE: .github/code-review.yml
           REVIEW_PROVIDER: ${{ secrets.REVIEW_PROVIDER }}
           REVIEW_MODEL: ${{ secrets.REVIEW_MODEL }}
 
-          # openai-compatible
           OPENAI_APIHOST: ${{ secrets.OPENAI_APIHOST }}
           OPENAI_APIKEY: ${{ secrets.OPENAI_APIKEY }}
           OPENAI_AUTH_SCHEME: Bearer
 
-          # backward compatibility
           CHATGLM_APIHOST: ${{ secrets.CHATGLM_APIHOST }}
           CHATGLM_APIKEYSECRET: ${{ secrets.CHATGLM_APIKEYSECRET }}
