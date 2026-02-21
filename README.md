@@ -21,4 +21,23 @@
 Git检出：GitHub Actions触发，检出最新的代码变更。
 代码评审：利用OpenAI（ChatGLM）进行代码评审，识别潜在的代码问题或改进建议。
 写入日志：将评审结果写入到指定的日志库中，以便后续跟踪和查询。
-消息通知：通过微信公众号发送模板消息，通知相关人员代码评审的结果和变更详情。
+## 新增：如何绑定到其他项目
+
+已提供详细文档：`docs/bind-other-projects.md`
+
+快速要点：
+- 在目标仓库添加 workflow（push/pull_request 触发）
+- 配置目标仓库 Secrets（`OPENAI_*`、`WEIXIN_*`、`CODE_*`）
+- 在目标仓库放置 `.github/code-review.yml` 指定 provider/model/prompt
+
+> 这样其他项目 push 时也能自动执行评审并发微信通知。
+
+## Release 与 SDK 是什么？
+
+- **SDK（openai-code-review-sdk）**：真正执行“读 diff → 调模型评审 → 写日志 → 发微信”的 Java 程序（jar）。
+- **Release**：把某个版本的 SDK jar 固化发布（像可下载的版本快照），其他项目可以直接下载使用，避免每次都从源码构建。
+
+当前建议：
+- 开发调试阶段：优先“从当前分支构建 jar”（保证改动即时生效）
+- 稳定后：发布 Release，给多仓库复用同一稳定版本
+
