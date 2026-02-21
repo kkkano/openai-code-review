@@ -41,3 +41,16 @@ Git检出：GitHub Actions触发，检出最新的代码变更。
 - 开发调试阶段：优先“从当前分支构建 jar”（保证改动即时生效）
 - 稳定后：发布 Release，给多仓库复用同一稳定版本
 
+## 新增：可直接复用的 Workflow 模板
+
+已提供示例文件：
+- `docs/examples/code-review-workflow-template.yml`（可复制到目标仓库 `.github/workflows/code-review.yml`）
+- `docs/examples/code-review.yml`（目标仓库的评审配置示例）
+
+使用方法：
+1. 复制 workflow 模板到目标仓库；
+2. 按文档配置 secrets（`CODE_*`、`OPENAI_*`、`WEIXIN_*`）；
+3. 在目标仓库添加 `.github/code-review.yml`；
+4. push 一次代码即可触发评审与微信通知。
+
+

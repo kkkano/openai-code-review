@@ -1,0 +1,15 @@
+# 放在目标仓库：.github/code-review.yml
+
+provider: openai-compatible
+apiHost: https://api.deepseek.com/v1/chat/completions
+apiKey: ${OPENAI_APIKEY}
+authScheme: Bearer
+model: deepseek-chat
+promptTemplate: |
+  你是资深代码审查工程师。
+  请基于本次提交 diff 输出：
+  1) Summary（做了什么）
+  2) Risks（潜在风险）
+  3) Fixes（可执行修复建议）
+  4) Tests（建议补充的测试）
+  要求：简洁、可落地、按优先级排序。
