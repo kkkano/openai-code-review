@@ -15,6 +15,108 @@
 
 > 详细图文步骤见下方「开箱即用」章节与 `docs/bind-other-projects.md`。
 
+## 一键复制区块（直接贴到你的仓库）
+
+### 1) `.github/workflows/code-review.yml`
+
+```yaml
+name: AI Code Review (OpenAI-compatible + WeChat)
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "11"
+
+      - name: Download openai-code-review SDK jar
+        env:
+          SDK_VERSION: v1.1.0
+        run: |
+          mkdir -p libs
+          curl -L -o libs/openai-code-review-sdk.jar \
+            "https://github.com/kkkano/openai-code-review/releases/download/${SDK_VERSION}/openai-code-review-sdk-1.0.jar"
+
+      - name: Resolve commit metadata
+        run: |
+          echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
+          echo "BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
+          echo "COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an <%ae>')" >> $GITHUB_ENV
+          echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
+
+      - name: Run AI Code Review
+        run: java -jar ./libs/openai-code-review-sdk.jar
+        env:
+          GITHUB_REVIEW_LOG_URI: ${{ secrets.CODE_REVIEW_LOG_URI }}
+          GITHUB_TOKEN: ${{ secrets.CODE_TOKEN }}
+
+          COMMIT_PROJECT: ${{ env.REPO_NAME }}
+          COMMIT_BRANCH: ${{ env.BRANCH_NAME }}
+          COMMIT_AUTHOR: ${{ env.COMMIT_AUTHOR }}
+          COMMIT_MESSAGE: ${{ env.COMMIT_MESSAGE }}
+
+          WEIXIN_APPID: ${{ secrets.WEIXIN_APPID }}
+          WEIXIN_SECRET: ${{ secrets.WEIXIN_SECRET }}
+          WEIXIN_TOUSER: ${{ secrets.WEIXIN_TOUSER }}
+          WEIXIN_TEMPLATE_ID: ${{ secrets.WEIXIN_TEMPLATE_ID }}
+
+          REVIEW_CONFIG_FILE: .github/code-review.yml
+          REVIEW_PROVIDER: openai-compatible
+          REVIEW_MODEL: ${{ secrets.REVIEW_MODEL }}
+
+          OPENAI_APIHOST: ${{ secrets.OPENAI_APIHOST }}
+          OPENAI_APIKEY: ${{ secrets.OPENAI_APIKEY }}
+          OPENAI_AUTH_SCHEME: Bearer
+```
+
+### 2) `.github/code-review.yml`
+
+```yaml
+provider: openai-compatible
+apiHost: https://api.deepseek.com/v1/chat/completions
+apiKey: ${OPENAI_APIKEY}
+authScheme: Bearer
+model: deepseek-chat
+promptTemplate: |
+  你是资深代码审查工程师。
+  请基于本次提交 diff 输出：
+  1) Summary（做了什么）
+  2) Risks（潜在风险）
+  3) Fixes（可执行修复建议）
+  4) Tests（建议补充的测试）
+  要求：简洁、可落地、按优先级排序。
+```
+
+### 3) 必须配置的 GitHub Secrets
+
+- `CODE_REVIEW_LOG_URI`
+- `CODE_TOKEN`
+- `OPENAI_APIHOST`
+- `OPENAI_APIKEY`
+- `REVIEW_MODEL`
+- `WEIXIN_APPID`
+- `WEIXIN_SECRET`
+- `WEIXIN_TOUSER`
+- `WEIXIN_TEMPLATE_ID`
+
 ## 新增：多提供商接入（OpenAI-compatible）
 
 现在支持通过 YAML 配置切换 LLM 提供商：
